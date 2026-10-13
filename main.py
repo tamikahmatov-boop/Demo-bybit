@@ -2277,38 +2277,43 @@ class OrderPlacementUnknown(RuntimeError):
 class BybitClient:
     def __init__(self, logger):
         self.log = logger
-        # В pybit 5.9.0 режим demo=True сам выбирает api-demo.bybit.com.
-        # Параметр endpoint не поддерживается этой версией и может ломать запуск.
-        # Этот экземпляр проекта предназначен только для Bybit Demo Trading.
-        # Не позволяем переменным Railway случайно переключить REST на mainnet/testnet.
+        # ЭТОТ ДЕПЛОЙ РАБОТАЕТ ТОЛЬКО С BYBIT DEMO TRADING.
+        # Важно: ключи должны быть созданы именно в режиме Demo Trading.
+        # Не используем TESTNET и не разрешаем переключение на mainnet через env/config.
         demo_mode = True
         testnet_mode = False
+        expected_endpoint = "https://api-demo.bybit.com"
         if bool(getattr(cfg, "TESTNET", False)):
             self.log.warning(
-                "cfg.TESTNET=True игнорируется: в этом деплое принудительно используется Demo Trading"
+                "cfg.TESTNET=True игнорируется: принудительно используется Bybit Demo Trading"
             )
         self.session = HTTP(
-            testnet=testnet_mode,
-            demo=demo_mode,
+            testnet=False,
+            demo=True,
             api_key=cfg.API_KEY,
             api_secret=cfg.API_SECRET,
             timeout=cfg.REQUEST_TIMEOUT_SEC,
             recv_window=20000,
         )
-        expected_endpoint = (
-            "https://api-demo.bybit.com" if demo_mode
-            else ("https://api-testnet.bybit.com" if testnet_mode else "https://api.bybit.com")
-        )
+        # Защита от версии/сборки pybit, которая оставила endpoint на mainnet.
+        # pybit использует session.endpoint при формировании REST URL.
+        try:
+            self.session.endpoint = expected_endpoint
+        except Exception as exc:
+            raise RuntimeError(
+                "Не удалось принудительно установить REST endpoint Bybit Demo Trading"
+            ) from exc
         actual_endpoint = str(getattr(self.session, "endpoint", "") or "").rstrip("/")
         if actual_endpoint != expected_endpoint:
             raise RuntimeError(
-                f"Неверный REST endpoint Bybit: ожидался {expected_endpoint}, "
-                f"получен {actual_endpoint or 'не определён'}"
+                f"ОТКАЗ ЗАПУСКА: неверный REST endpoint Bybit; ожидался {expected_endpoint}, "
+                f"получен {actual_endpoint or 'не определён'}. Запросы к mainnet запрещены."
             )
-        self.log.info(
-            "Bybit REST endpoint: %s (%s)",
+        self.log.warning(
+            "BYBIT_DEMO_ONLY_BUILD=2026-10-13 | REST endpoint=%s | mode=Demo Trading | "
+            "API key configured=%s",
             actual_endpoint,
-            "Demo Trading" if demo_mode else ("Testnet" if testnet_mode else "Mainnet"),
+            bool(getattr(cfg, "API_KEY", "")) and bool(getattr(cfg, "API_SECRET", "")),
         )
         if getattr(cfg, "PROXY_URL", ""):
             self.session.client.proxies = {"http": cfg.PROXY_URL, "https": cfg.PROXY_URL}
