@@ -26,8 +26,8 @@
 # ---------------------------------------------------------------------------
 # Bybit — один аккаунт для торговли И для чтения статистики
 # ---------------------------------------------------------------------------
-API_KEY = "woiSv4KX90TuCdq6cJ"
-API_SECRET = "kRWXuYfI83E2xOHVzgo4Tymhnuut0a0PjZer"
+API_KEY = "U9JTX2cyaYrY4OD2sj"
+API_SECRET = "2A9XOym5d0MS6DgzXYAJi4NXLZglznidCJ5w"
 TESTNET = False                 # True = testnet.bybit.com (нужны отдельные ключи)
 CATEGORY = "linear"             # USDT-перпетуалы
 QUOTE_COIN = "USDT"
@@ -41,7 +41,7 @@ DRY_RUN = False                 # True = только логировать си�
 # ---------------------------------------------------------------------------
 # Telegram — один бот на всё (торговля + статистика)
 # ---------------------------------------------------------------------------
-TELEGRAM_BOT_TOKEN = "8946616453:AAE-ZIWg9GwukEK1oor7OeVhirXaB1JUdeA"
+TELEGRAM_BOT_TOKEN = "8832768041:AAFDUvv_7lLE21K1Z2sU1uJQRoGOEOz13RU"
 TELEGRAM_CHAT_ID = "6716942872"
 # Если оставить пустой строкой "" — бот будет отвечать в любом чате (небезопасно).
 
