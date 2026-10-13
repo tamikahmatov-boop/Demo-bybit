@@ -1,0 +1,25 @@
+name: Testnet safety checks
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  static-and-unit-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+      - name: Install test dependency
+        run: python -m pip install --upgrade pip pytest
+      - name: Compile bot without starting it
+        run: python -m py_compile main.py config.py testnet_diagnostics.py
+      - name: Run Testnet safety tests
+        run: python -m pytest -q tests
