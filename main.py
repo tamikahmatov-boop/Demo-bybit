@@ -2277,40 +2277,35 @@ class OrderPlacementUnknown(RuntimeError):
 class BybitClient:
     def __init__(self, logger):
         self.log = logger
-        # ЭТОТ ДЕПЛОЙ РАБОТАЕТ ТОЛЬКО С BYBIT DEMO TRADING.
-        # Важно: ключи должны быть созданы именно в режиме Demo Trading.
-        # Не используем TESTNET и не разрешаем переключение на mainnet через env/config.
-        demo_mode = True
-        testnet_mode = False
-        expected_endpoint = "https://api-demo.bybit.com"
-        if bool(getattr(cfg, "TESTNET", False)):
-            self.log.warning(
-                "cfg.TESTNET=True игнорируется: принудительно используется Bybit Demo Trading"
-            )
+        # ЭТОТ ДЕПЛОЙ РАБОТАЕТ ТОЛЬКО С BYBIT TESTNET.
+        # Нужны отдельные API_KEY/API_SECRET, созданные на testnet.bybit.com.
+        # Mainnet и Demo Trading намеренно запрещены.
+        demo_mode = False
+        testnet_mode = True
+        expected_endpoint = "https://api-testnet.bybit.com"
         self.session = HTTP(
-            testnet=False,
-            demo=True,
+            testnet=True,
+            demo=False,
             api_key=cfg.API_KEY,
             api_secret=cfg.API_SECRET,
             timeout=cfg.REQUEST_TIMEOUT_SEC,
             recv_window=20000,
         )
-        # Защита от версии/сборки pybit, которая оставила endpoint на mainnet.
-        # pybit использует session.endpoint при формировании REST URL.
+        # Защита от случайного обращения к Demo Trading или основному аккаунту.
         try:
             self.session.endpoint = expected_endpoint
         except Exception as exc:
             raise RuntimeError(
-                "Не удалось принудительно установить REST endpoint Bybit Demo Trading"
+                "Не удалось установить REST endpoint Bybit Testnet"
             ) from exc
         actual_endpoint = str(getattr(self.session, "endpoint", "") or "").rstrip("/")
         if actual_endpoint != expected_endpoint:
             raise RuntimeError(
-                f"ОТКАЗ ЗАПУСКА: неверный REST endpoint Bybit; ожидался {expected_endpoint}, "
-                f"получен {actual_endpoint or 'не определён'}. Запросы к mainnet запрещены."
+                f"ОТКАЗ ЗАПУСКА: неверный REST endpoint Bybit Testnet; ожидался {expected_endpoint}, "
+                f"получен {actual_endpoint or 'не определён'}. Запросы к другим средам запрещены."
             )
         self.log.warning(
-            "BYBIT_DEMO_ONLY_BUILD=2026-10-13 | REST endpoint=%s | mode=Demo Trading | "
+            "BYBIT_TESTNET_ONLY_BUILD=2026-10-13 | REST endpoint=%s | mode=Testnet | "
             "API key configured=%s",
             actual_endpoint,
             bool(getattr(cfg, "API_KEY", "")) and bool(getattr(cfg, "API_SECRET", "")),
