@@ -26,8 +26,8 @@
 # ---------------------------------------------------------------------------
 # Bybit — один аккаунт для торговли И для чтения статистики
 # ---------------------------------------------------------------------------
-API_KEY ="U9JTX2cyaYrY4OD2sj"
-API_SECRET ="2A9XOym5d0MS6DgzXYAJi4NXLZglznidCJ5w"
+API_KEY ="Ps7r66XI5oIW45MjGq"
+API_SECRET ="xSQRzffrnFjdCEhHatEarjYMq7FCttkfIgTW"
 TESTNET = True                  # Bybit Testnet; нужны отдельные Testnet API-ключи
 DEMO_TRADING = False             # Testnet выбран; Demo Trading выключен
 CATEGORY = "linear"             # USDT-перпетуалы
