@@ -2319,17 +2319,17 @@ class BybitClient:
             self.session.get_positions(category="linear", settleCoin="USDT")
         except Exception as exc:
             self.log.error(
-                "BYBIT DEMO CONNECTION CHECK FAILED: endpoint=%s; "
-                "проверьте, что API key/secret созданы именно в Demo Trading. Ошибка: %s",
+                "BYBIT TESTNET CONNECTION CHECK FAILED: endpoint=%s; "
+                "проверьте, что API key/secret созданы именно в Bybit Testnet. Ошибка: %s",
                 expected_endpoint,
                 exc,
             )
             raise RuntimeError(
-                "Bybit Demo Trading: проверка подключения/авторизации не пройдена; "
+                "Bybit Testnet: проверка подключения/авторизации не пройдена; "
                 "торговая логика остановлена в безопасном режиме"
             ) from exc
         self.log.info(
-            "BYBIT DEMO CONNECTION CHECK OK: авторизация и чтение позиций подтверждены"
+            "BYBIT TESTNET CONNECTION CHECK OK: авторизация и чтение позиций подтверждены"
         )
 
         self._leverage_set: set = set()
