@@ -331,8 +331,8 @@ import os as _os
 
 DEMO_TRADING = _os.environ.get("DEMO_TRADING", "true").strip().lower() in ("1", "true", "yes", "on")
 
-API_KEY = _os.environ.get("BYBIT_API_KEY", API_KEY)
-API_SECRET = _os.environ.get("BYBIT_API_SECRET", API_SECRET)
+# API_KEY задан выше; повторное присваивание удалено.
+# API_SECRET задан выше; повторное присваивание удалено.
 TELEGRAM_BOT_TOKEN = _os.environ.get("TELEGRAM_BOT_TOKEN", TELEGRAM_BOT_TOKEN)
 TELEGRAM_CHAT_ID = _os.environ.get("TELEGRAM_CHAT_ID", TELEGRAM_CHAT_ID)
 
