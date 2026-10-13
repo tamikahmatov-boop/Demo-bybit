@@ -87,3 +87,44 @@ def test_startup_logs_are_not_mislabeled_as_demo():
     assert "BYBIT TESTNET CONNECTION CHECK OK" in source
     assert "BYBIT TESTNET CONNECTION CHECK FAILED" in source
     assert "BYBIT DEMO CONNECTION CHECK" not in source
+
+
+def test_bot_has_no_mainnet_or_demo_rest_endpoint_literals():
+    source = (ROOT / "main.py").read_text(encoding="utf-8")
+    assert "https://api.bybit.com" not in source
+    assert "https://api-demo.bybit.com" not in source
+    assert "https://api-demo-testnet.bybit.com" not in source
+    assert "https://api-testnet.bybit.com" in source
+
+
+def test_public_websocket_uses_testnet_config():
+    tree = _parse("main.py")
+    calls = [
+        node for node in ast.walk(tree)
+        if isinstance(node, ast.Call)
+        and isinstance(node.func, ast.Name)
+        and node.func.id == "WebSocket"
+    ]
+    assert len(calls) == 1, "Ожидался один публичный WebSocket-клиент"
+    kwargs = {kw.arg: kw.value for kw in calls[0].keywords if kw.arg}
+    testnet_arg = kwargs.get("testnet")
+    assert isinstance(testnet_arg, ast.Attribute)
+    assert isinstance(testnet_arg.value, ast.Name) and testnet_arg.value.id == "cfg"
+    assert testnet_arg.attr == "TESTNET"
+
+
+def test_diagnostic_script_uses_only_read_operations():
+    tree = _parse("testnet_diagnostics.py")
+    called_methods = {
+        node.func.attr for node in ast.walk(tree)
+        if isinstance(node, ast.Call) and isinstance(node.func, ast.Attribute)
+    }
+    forbidden = {
+        "place_order", "create_order", "cancel_order", "cancel_all_orders",
+        "amend_order", "set_trading_stop", "set_leverage", "switch_position_mode",
+        "set_margin_mode", "transfer", "withdraw",
+    }
+    assert not (called_methods & forbidden), (
+        "Диагностический скрипт не должен создавать/менять ордера или менять настройки аккаунта"
+    )
+    assert {"get_server_time", "get_positions", "get_open_orders"} <= called_methods
