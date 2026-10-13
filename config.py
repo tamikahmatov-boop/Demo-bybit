@@ -29,6 +29,7 @@
 API_KEY = "U9JTX2cyaYrY4OD2sj"
 API_SECRET = "2A9XOym5d0MS6DgzXYAJi4NXLZglznidCJ5w"
 TESTNET = False                 # True = testnet.bybit.com (нужны отдельные ключи)
+DEMO_TRADING = True              # Использовать отдельные ключи Bybit Demo Trading
 CATEGORY = "linear"             # USDT-перпетуалы
 QUOTE_COIN = "USDT"
 
@@ -327,6 +328,8 @@ SIGNAL_TP2_CLOSE_PERCENT_DEFAULT = 50
 # Это позволяет не хранить реальные ключи в самом файле в проде.
 # ---------------------------------------------------------------------------
 import os as _os
+
+DEMO_TRADING = _os.environ.get("DEMO_TRADING", "true").strip().lower() in ("1", "true", "yes", "on")
 
 API_KEY = _os.environ.get("BYBIT_API_KEY", API_KEY)
 API_SECRET = _os.environ.get("BYBIT_API_SECRET", API_SECRET)
