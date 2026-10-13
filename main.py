@@ -2278,7 +2278,8 @@ class BybitClient:
     def __init__(self, logger):
         self.log = logger
         self.session = HTTP(
-            testnet=cfg.TESTNET,
+            testnet=False,
+            demo=True,
             api_key=cfg.API_KEY,
             api_secret=cfg.API_SECRET,
             timeout=cfg.REQUEST_TIMEOUT_SEC,
