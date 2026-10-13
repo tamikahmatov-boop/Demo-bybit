@@ -2315,6 +2315,9 @@ class BybitClient:
             actual_endpoint,
             bool(getattr(cfg, "API_KEY", "")) and bool(getattr(cfg, "API_SECRET", "")),
         )
+        if getattr(cfg, "PROXY_URL", ""):
+            self.session.client.proxies = {"http": cfg.PROXY_URL, "https": cfg.PROXY_URL}
+            self.log.info("Использую прокси для запросов к Bybit")
         # Безопасная проверка авторизации при запуске: только чтение позиций,
         # никаких ордеров/изменений баланса. При ошибке ключа не запускаем торговую логику.
         try:
@@ -2333,9 +2336,6 @@ class BybitClient:
         self.log.info(
             "BYBIT DEMO CONNECTION CHECK OK: авторизация и чтение позиций подтверждены"
         )
-        if getattr(cfg, "PROXY_URL", ""):
-            self.session.client.proxies = {"http": cfg.PROXY_URL, "https": cfg.PROXY_URL}
-            self.log.info("Использую прокси для запросов к Bybit")
 
         self._leverage_set: set = set()
         self._instrument_cache: Dict[str, Dict] = {}
