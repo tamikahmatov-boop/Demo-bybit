@@ -28,8 +28,8 @@
 # ---------------------------------------------------------------------------
 API_KEY ="U9JTX2cyaYrY4OD2sj"
 API_SECRET ="2A9XOym5d0MS6DgzXYAJi4NXLZglznidCJ5w"
-TESTNET = False                 # True = testnet.bybit.com (нужны отдельные ключи)
-DEMO_TRADING = True              # Использовать отдельные ключи Bybit Demo Trading
+TESTNET = True                  # Bybit Testnet; нужны отдельные Testnet API-ключи
+DEMO_TRADING = False             # Testnet выбран; Demo Trading выключен
 CATEGORY = "linear"             # USDT-перпетуалы
 QUOTE_COIN = "USDT"
 
@@ -329,7 +329,7 @@ SIGNAL_TP2_CLOSE_PERCENT_DEFAULT = 50
 # ---------------------------------------------------------------------------
 import os as _os
 
-DEMO_TRADING = _os.environ.get("DEMO_TRADING", "true").strip().lower() in ("1", "true", "yes", "on")
+DEMO_TRADING = False             # Testnet выбран; Demo Trading выключен
 
 # API_KEY задан выше; повторное присваивание удалено.
 # API_SECRET задан выше; повторное присваивание удалено.
