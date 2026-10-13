@@ -2279,11 +2279,13 @@ class BybitClient:
         self.log = logger
         # В pybit 5.9.0 режим demo=True сам выбирает api-demo.bybit.com.
         # Параметр endpoint не поддерживается этой версией и может ломать запуск.
-        demo_mode = bool(getattr(cfg, "DEMO_TRADING", True))
-        testnet_mode = bool(getattr(cfg, "TESTNET", False))
-        if demo_mode and testnet_mode:
-            raise RuntimeError(
-                "Неверная конфигурация Bybit: DEMO_TRADING=True несовместим с TESTNET=True"
+        # Этот экземпляр проекта предназначен только для Bybit Demo Trading.
+        # Не позволяем переменным Railway случайно переключить REST на mainnet/testnet.
+        demo_mode = True
+        testnet_mode = False
+        if bool(getattr(cfg, "TESTNET", False)):
+            self.log.warning(
+                "cfg.TESTNET=True игнорируется: в этом деплое принудительно используется Demo Trading"
             )
         self.session = HTTP(
             testnet=testnet_mode,
