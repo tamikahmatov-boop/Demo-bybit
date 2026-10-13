@@ -2315,6 +2315,24 @@ class BybitClient:
             actual_endpoint,
             bool(getattr(cfg, "API_KEY", "")) and bool(getattr(cfg, "API_SECRET", "")),
         )
+        # Безопасная проверка авторизации при запуске: только чтение позиций,
+        # никаких ордеров/изменений баланса. При ошибке ключа не запускаем торговую логику.
+        try:
+            self.session.get_positions(category="linear", settleCoin="USDT")
+        except Exception as exc:
+            self.log.error(
+                "BYBIT DEMO CONNECTION CHECK FAILED: endpoint=%s; "
+                "проверьте, что API key/secret созданы именно в Demo Trading. Ошибка: %s",
+                expected_endpoint,
+                exc,
+            )
+            raise RuntimeError(
+                "Bybit Demo Trading: проверка подключения/авторизации не пройдена; "
+                "торговая логика остановлена в безопасном режиме"
+            ) from exc
+        self.log.info(
+            "BYBIT DEMO CONNECTION CHECK OK: авторизация и чтение позиций подтверждены"
+        )
         if getattr(cfg, "PROXY_URL", ""):
             self.session.client.proxies = {"http": cfg.PROXY_URL, "https": cfg.PROXY_URL}
             self.log.info("Использую прокси для запросов к Bybit")
