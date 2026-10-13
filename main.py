@@ -2277,23 +2277,37 @@ class OrderPlacementUnknown(RuntimeError):
 class BybitClient:
     def __init__(self, logger):
         self.log = logger
-        # Явно закрепляем REST endpoint Demo Trading: не полагаемся только
-        # на авто-выбор домена внутри конкретной версии pybit.
+        # В pybit 5.9.0 режим demo=True сам выбирает api-demo.bybit.com.
+        # Параметр endpoint не поддерживается этой версией и может ломать запуск.
+        demo_mode = bool(getattr(cfg, "DEMO_TRADING", True))
+        testnet_mode = bool(getattr(cfg, "TESTNET", False))
+        if demo_mode and testnet_mode:
+            raise RuntimeError(
+                "Неверная конфигурация Bybit: DEMO_TRADING=True несовместим с TESTNET=True"
+            )
         self.session = HTTP(
-            testnet=False,
-            demo=True,
-            endpoint="https://api-demo.bybit.com",
+            testnet=testnet_mode,
+            demo=demo_mode,
             api_key=cfg.API_KEY,
             api_secret=cfg.API_SECRET,
             timeout=cfg.REQUEST_TIMEOUT_SEC,
             recv_window=20000,
         )
+        expected_endpoint = (
+            "https://api-demo.bybit.com" if demo_mode
+            else ("https://api-testnet.bybit.com" if testnet_mode else "https://api.bybit.com")
+        )
         actual_endpoint = str(getattr(self.session, "endpoint", "") or "").rstrip("/")
-        if actual_endpoint and actual_endpoint != "https://api-demo.bybit.com":
+        if actual_endpoint != expected_endpoint:
             raise RuntimeError(
-                f"Неверный REST endpoint Bybit для Demo Trading: {actual_endpoint}"
+                f"Неверный REST endpoint Bybit: ожидался {expected_endpoint}, "
+                f"получен {actual_endpoint or 'не определён'}"
             )
-        self.log.info("Bybit REST endpoint: https://api-demo.bybit.com (Demo Trading)")
+        self.log.info(
+            "Bybit REST endpoint: %s (%s)",
+            actual_endpoint,
+            "Demo Trading" if demo_mode else ("Testnet" if testnet_mode else "Mainnet"),
+        )
         if getattr(cfg, "PROXY_URL", ""):
             self.session.client.proxies = {"http": cfg.PROXY_URL, "https": cfg.PROXY_URL}
             self.log.info("Использую прокси для запросов к Bybit")
