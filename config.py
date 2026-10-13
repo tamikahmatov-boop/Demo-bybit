@@ -26,8 +26,8 @@
 # ---------------------------------------------------------------------------
 # Bybit — один аккаунт для торговли И для чтения статистики
 # ---------------------------------------------------------------------------
-API_KEY = _os.environ.get("U9JTX2cyaYrY4OD2sj", API_KEY).strip()
-API_SECRET = _os.environ.get("2A9XOym5d0MS6DgzXYAJi4NXLZglznidCJ5w", API_SECRET).strip()
+API_KEY ="U9JTX2cyaYrY4OD2sj"
+API_SECRET ="2A9XOym5d0MS6DgzXYAJi4NXLZglznidCJ5w"
 TESTNET = False                 # True = testnet.bybit.com (нужны отдельные ключи)
 DEMO_TRADING = True              # Использовать отдельные ключи Bybit Demo Trading
 CATEGORY = "linear"             # USDT-перпетуалы
