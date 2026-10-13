@@ -2277,14 +2277,23 @@ class OrderPlacementUnknown(RuntimeError):
 class BybitClient:
     def __init__(self, logger):
         self.log = logger
+        # Явно закрепляем REST endpoint Demo Trading: не полагаемся только
+        # на авто-выбор домена внутри конкретной версии pybit.
         self.session = HTTP(
             testnet=False,
             demo=True,
+            endpoint="https://api-demo.bybit.com",
             api_key=cfg.API_KEY,
             api_secret=cfg.API_SECRET,
             timeout=cfg.REQUEST_TIMEOUT_SEC,
             recv_window=20000,
         )
+        actual_endpoint = str(getattr(self.session, "endpoint", "") or "").rstrip("/")
+        if actual_endpoint and actual_endpoint != "https://api-demo.bybit.com":
+            raise RuntimeError(
+                f"Неверный REST endpoint Bybit для Demo Trading: {actual_endpoint}"
+            )
+        self.log.info("Bybit REST endpoint: https://api-demo.bybit.com (Demo Trading)")
         if getattr(cfg, "PROXY_URL", ""):
             self.session.client.proxies = {"http": cfg.PROXY_URL, "https": cfg.PROXY_URL}
             self.log.info("Использую прокси для запросов к Bybit")
